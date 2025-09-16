@@ -78,7 +78,7 @@ class Guify:
 
         # add binary arguments
         for k in parser.args["binary"]:
-            var = tk.StringVar()
+            var = tk.StringVar(value="False")
             self.var_objects[k["name"]] = var
             tick = tk.Checkbutton(self.root, variable=var, onvalue="True", offvalue="False")
             pos_name = tk.Label(self.root, text = k["name"], wraplength=self.wcol, justify="left")
@@ -183,7 +183,7 @@ class Guify:
         self.df = 0
         if path.exists(): 
             print("History exists, loading history for " + self.cmd)
-            self.df = pd.read_csv(self.history_file, sep="\t", dtype=str)
+            self.df = pd.read_csv(self.history_file, sep="\t", dtype=str, keep_default_na=False)
             self.build_history_menu()
         else:
             print("History for '" + self.cmd + "' does not exist yet. Will get created when saving a command.")
