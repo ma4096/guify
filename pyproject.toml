@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "guify"
+version = "0.2"
+description = "Generates a GUI using tkinter on top of the help page of any python script."
+dependencies = [
+    "pandas"
+]
+
+[project.scripts]
+guify = __main__:main
+
+[tool.setuptools.packages.find]
+where = ["guify"]
+include = ["*"]
+#namespaces = true
