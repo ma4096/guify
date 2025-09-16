@@ -2,3 +2,4 @@
 **/*.egg-info
 **/history/*
 **/*.ico
+executable/

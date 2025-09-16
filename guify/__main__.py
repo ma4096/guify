@@ -1,4 +1,4 @@
-from Guify import Guify
+from .Guify import Guify
 
 import argparse
 

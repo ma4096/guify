@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [project.scripts]
-guify = __main__:main
+guify = "guify.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["guify"]

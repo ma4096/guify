@@ -14,7 +14,9 @@ class Guify:
     """
 
     version = "guify v0.2"
-    terminal = ["konsole", "--hold", "-e"] # paste the command for opening a new terminal/console process/window on your system (konsole), letting it stay open after a command finishes (--hold) and the flag for directly executing passed commands (-e)
+    keep_terminal = ["konsole", "--hold", "-e"] # launches new terminal, executes command appended to list and stays open after command terminates
+    single_terminal = ["konsole", "-e"] # launches new terminal and executes command appended to list
+    terminal = single_terminal
 
     wcol = 200 # width of each column
 
@@ -94,11 +96,19 @@ class Guify:
         execute = tk.Button(self.root, text="execute",command=self.execute)
         execute.grid(row=grid_row, column=0)
 
+        # button for selecting to keep or exit the console afterwards
+        boolVar = tk.BooleanVar(value=False)
+        def switch_terminal():
+            self.terminal = self.keep_terminal if boolVar.get() else self.single_terminal
+
+        tick = tk.Checkbutton(self.root, text="Keep console open", var=boolVar, onvalue=True, offvalue=False, command=switch_terminal)
+        tick.grid(row=grid_row+1, column=0)
+
         # button and textfield for only showing the command
         show = tk.Button(self.root, text="show command", command=self.show_command)
         self.show_out = tk.Text(self.root, width=50, height=2 )#, textvariable=self.show_var)
         show.grid(row=grid_row, column=1)
-        self.show_out.grid(row=grid_row+1, column=0, columnspan=3)
+        self.show_out.grid(row=grid_row+1, column=1, columnspan=2)
 
         # button for saving the current command to the history
         save = tk.Button(self.root, text="save to history", command=self.add_command_to_history)
