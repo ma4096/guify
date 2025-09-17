@@ -3,3 +3,4 @@
 **/history/*
 **/*.ico
 executable/
+build/

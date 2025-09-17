@@ -10,7 +10,8 @@ class Parser:
         self.usage = ""
         self.description = ""
 
-        indent_0 = None # normal indentation (gets set, mostly 2)
+        self.indent_0 = None # normal indentation (gets set, mostly 2)
+        self.indent_1 = None # index, where the description starts (is the same for all args)
         for l in self.h:
             #print(repr(l), "" == l.strip())
             if len(l.strip()) == 0:
@@ -39,13 +40,15 @@ class Parser:
             #if len(l.strip()) != 0:
             if current_group in ["options_raw", "pos_raw"]:
                 indent = len(l) - len(l.lstrip())
-                if indent_0 == None:
-                    indent_0 = indent
+                if self.indent_0 == None:
+                    self.indent_0 = indent
                 
-                if indent > indent_0:
+                if indent > self.indent_0:
                     #print(l, self.args[current_group], current_group)
                     # this is a newline, but matching to the description
-                    self.args[current_group][-1] += " " + l.lstrip()
+                    self.args[current_group][-1] += "\n" + l.lstrip()
+
+                    self.indent_1 = indent-1
                     continue
 
 
@@ -94,7 +97,7 @@ class Parser:
         """ Takes a string as parsed by the parser (pos_raw) and cleans it up to differentiate between name and description. Positional argument lines always consist of one single word name and a description
         """
         t = s.strip()
-        first_whitespace = t.find(" ")
+        first_whitespace = t.replace("\n", " ").find(" ") # always just a single word
         rdict = {
             "name": t[:first_whitespace],
             "description": t[first_whitespace:].strip()
@@ -106,7 +109,11 @@ class Parser:
         """
         t = s.strip()
         # find the longest whitespace in the string -> border between name(s) and description
-        start_longest_whitespace = min(range(len(t)), key=lambda x: len(t[x:].strip()) - len(t[x:]))
+        if t[self.indent_1-self.indent_0] != " ":
+            start_longest_whitespace = t.find("\n") # if it reaches into the description part, then there is no description in that line
+        else:
+            start_longest_whitespace = min(range(len(t)), key=lambda x: len(t[x:].strip()) - len(t[x:]))
+        t = t.replace("\n", " ")
 
         first = t[:start_longest_whitespace]#.strip()
         last = t[start_longest_whitespace:].strip()

@@ -64,7 +64,12 @@ class Guify:
         grid_row = 2
 
         # add mandatory and optional arguments
-        for k in parser.args["pos"] + parser.args["options"]:
+        pos_header = tk.Label(self.root, text = "Mandatory arguments", wraplength=self.wcol, justify="left")
+        pos_header.grid(row=grid_row, column=0, columnspan=2)
+        grid_row += 1
+
+        div = len(parser.args["pos"]) - 1
+        for i,k in enumerate(parser.args["pos"] + parser.args["options"]):
             #val = parser.args["pos"][k]
             var = tk.StringVar()
             self.var_objects[k["name"]] = var
@@ -77,12 +82,17 @@ class Guify:
             pos_entry.grid(row=grid_row, column=0, sticky="E")
             grid_row += 1
 
+            if i == div:
+                opt_header = tk.Label(self.root, text = "Optional arguments", wraplength=self.wcol, justify="left")
+                opt_header.grid(row=grid_row, column=0, columnspan=2)
+                grid_row += 1
+
 
         # add binary arguments
         for k in parser.args["binary"]:
-            var = tk.StringVar(value="False")
+            var = tk.StringVar(value="")
             self.var_objects[k["name"]] = var
-            tick = tk.Checkbutton(self.root, variable=var, onvalue="True", offvalue="False")
+            tick = tk.Checkbutton(self.root, variable=var, onvalue="True", offvalue="")
             pos_name = tk.Label(self.root, text = k["name"], wraplength=self.wcol, justify="left")
             pos_description = tk.Label(self.root, text = k["description"], wraplength=self.wcol, justify="left")
 
@@ -163,14 +173,16 @@ class Guify:
         cmd = self.cmd + " "
 
         # binary, optional arguments: only add when the value exists in var_objects
-        cmd += " ".join([opt["name"] for opt in self.parser.args["binary"] if var_objects[opt["name"]] == "True"]) + " "
+        # opt["name"] in var_objects.keys() for backwards compatability (loading commands from history when new options have been added)
+        cmd += " ".join([opt["name"] for opt in self.parser.args["binary"] if (opt["name"] in var_objects.keys() and var_objects[opt["name"]] == "True")]) + " "
 
         # optional arguments
         for k in self.parser.args["options"]:
             name = k["name"]
-            val = var_objects[name]
-            if val != "":
-                cmd += str(name) + " " + str(val) + " "
+            if name in var_objects.keys(): # backwards compatability 
+                val = var_objects[name]
+                if val != "":
+                    cmd += str(name) + " " + str(val) + " "
         
         # mandatory arguments -> ensure the order of arguments
         cmd += " ".join([str(var_objects[k]) for k in self.mandatory_order])
@@ -194,12 +206,18 @@ class Guify:
         if path.exists(): 
             print("History exists, loading history for " + self.cmd)
             self.df = pd.read_csv(self.history_file, sep="\t", dtype=str, keep_default_na=False)
-            self.build_history_menu()
+            if set(self.compile().keys()) != set(self.df.columns):
+                print("New arguments detected, updating history by adding empty strings as default values")
+                new_args = set(self.compile().keys()) - set(self.df.columns)
+                for arg in new_args:
+                    self.df[arg] = ""
+
         else:
             print("History for '" + self.cmd + "' does not exist yet. Will get created when saving a command.")
             #self.df = pd.DataFrame({k: [v] for k,v in self.compile().items()})
             self.df = pd.DataFrame(columns=self.compile().keys())
 
+        self.build_history_menu()
         #print(self.df)
 
     def build_history_menu(self):
@@ -207,6 +225,9 @@ class Guify:
         menubutton = tk.Menubutton(self.root, text="history")
         menubutton.menu = tk.Menu(menubutton) 
         menubutton["menu"]= menubutton.menu
+
+        # add button for showing the path to the history file in the output area
+        menubutton.menu.add_radiobutton(label="Show history file path", command=lambda: self.write_to_gui("History file: " + str(self.history_file)))
 
         def create_decompile_lambda(conf=None):
             return lambda: self.decompile(conf)
