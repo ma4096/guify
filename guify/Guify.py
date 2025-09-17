@@ -50,7 +50,7 @@ class Guify:
             parser = self.parser
 
         self.root = tk.Tk()#screenName = self.version)
-        self.root.title(self.version)
+        self.root.title(self.version + ": " + self.cmd)
         #self.root.iconbitmap((self.dir / "favicon.ico").resolve())
         #self.root.iconbitmap("favicon.ico")
         #root.geometry("600x400")

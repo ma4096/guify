@@ -4,7 +4,7 @@ Build a GUI over any python script/program that supplies a standard self documen
 
 Ironically, this is also a cli program.
 
-Supports saving to/loading from a history of commands calls.
+Supports saving to/loading from a history of commands calls. It is also possible to just output the command for you to include in another pipe etc.
 
 ### Installation
 1. Clone this repo
@@ -19,6 +19,10 @@ Supports saving to/loading from a history of commands calls.
 
 ### Usage
 `guify "python yourscript.py"` to start.
+
+![Example GUI generated from a --help page](https://github.com/ma4096/guify/blob/main/doc/example.jpg?raw=true)
+
+It may not be the most beautiful, but it does the job :)
 
 ### Future improvements
 - Chaining commands, useful for activating virtual environments.
