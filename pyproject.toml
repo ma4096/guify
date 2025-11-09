@@ -14,6 +14,6 @@ dependencies = [
 guify = "guify.__main__:main"
 
 [tool.setuptools.packages.find]
-where = ["guify"]
+where = ["."] # important: dont use the package dir, would cause namespace collisions if other packages have equally named files
 include = ["*"]
-#namespaces = true
+namespaces = true

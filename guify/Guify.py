@@ -6,7 +6,7 @@ import pathlib
 import pandas as pd
 import tkinter as tk
 
-from Parser import Parser
+from guify.Parser import Parser
 
 class Guify:
     """ Create a GUI on top of a normal cli command. Also allows for storing and loading commands.
@@ -20,16 +20,19 @@ class Guify:
 
     wcol = 200 # width of each column
 
-    def __init__(self, cmd):
+    def __init__(self, cmd, from_file=False):
         self.cmd = cmd
 
         self.dir = pathlib.Path(__file__).parent
         # stty cols 1000 sets the width of the terminal window, making it easier to parse
         #print(subprocess.check_output("tput cols", shell=True, text=True))
-        self.parsetext = subprocess.check_output(cmd + " --help", shell=True, text=True)
-        #print(self.parsetext)
-        
-        self.parser = Parser(self.parsetext)
+        if from_file:
+            config_file = (self.dir / "commands" / (cmd.replace(" ", "_") + ".json")).resolve()
+            self.parser = Parser(config_file, from_file=True) 
+        else:
+            self.parsetext = subprocess.check_output(cmd + " --help", shell=True, text=True)
+            self.parser = Parser(self.parsetext)
+
         self.mandatory_order = [dic["name"] for dic in self.parser.args["pos"]]
 
         # prepare arguments
@@ -169,24 +172,33 @@ class Guify:
         
         :param list binary_arguments: list with the binary arguments (no value, only) 
         """
-        # base command
-        cmd = self.cmd + " "
 
-        # binary, optional arguments: only add when the value exists in var_objects
-        # opt["name"] in var_objects.keys() for backwards compatability (loading commands from history when new options have been added)
-        cmd += " ".join([opt["name"] for opt in self.parser.args["binary"] if (opt["name"] in var_objects.keys() and var_objects[opt["name"]] == "True")]) + " "
+        if self.parser.template == None:
+            # base command
+            cmd = self.cmd + " "
 
-        # optional arguments
-        for k in self.parser.args["options"]:
-            name = k["name"]
-            if name in var_objects.keys(): # backwards compatability 
-                val = var_objects[name]
-                if val != "":
-                    cmd += str(name) + " " + str(val) + " "
+            # binary, optional arguments: only add when the value exists in var_objects
+            # opt["name"] in var_objects.keys() for backwards compatability (loading commands from history when new options have been added)
+            cmd += " ".join([opt["name"] for opt in self.parser.args["binary"] if (opt["name"] in var_objects.keys() and var_objects[opt["name"]] == "True")]) + " "
+
+            # optional arguments
+            for k in self.parser.args["options"]:
+                name = k["name"]
+                if name in var_objects.keys(): # backwards compatability 
+                    val = var_objects[name]
+                    if val != "":
+                        cmd += str(name) + " " + str(val) + " "
+            
+            # mandatory arguments -> ensure the order of arguments
+            cmd += " ".join([str(var_objects[k]) for k in self.mandatory_order])
         
-        # mandatory arguments -> ensure the order of arguments
-        cmd += " ".join([str(var_objects[k]) for k in self.mandatory_order])
-        #print(cmd)
+        else:
+            # templates currently only work with positional arguments, no optional arguments.
+            cmd = self.parser.template
+            
+            for k in self.mandatory_order:
+                cmd = cmd.replace("{" + k + "}", var_objects[k])
+
         return cmd
 
     def write_to_gui(self, s):

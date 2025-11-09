@@ -1,0 +1,16 @@
+{
+	"description": "Send HTTP POST requests to API endpoints using curl to send json data.",
+	"usage": "",
+	"template": "curl -X POST {ADDRESS}{ENDPOINT} -H \"Content-Type: application/json\" -d '{JSON_DATA}'",
+	"args": {
+		"pos": {
+			"ADDRESS": "Protocol://Address:Port of the server",
+			"ENDPOINT": "Endpoint of the API to send the request to (/api/test)",
+			"JSON_DATA": "JSON data to send/post. Write as string {\" text\": \"Hello World!\"}"
+		},
+		"options": {
+		},
+		"binary": {
+		}
+	}
+}

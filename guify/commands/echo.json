@@ -1,0 +1,17 @@
+{
+	"description": "Display a line of text",
+	"usage": "echo [SHORT-OPTION]... [STRING]...",
+	"template": "",
+	"args": {
+		"pos": {
+			"STRING": "Echo the STRING to the standard output"
+		},
+		"options": {
+
+		},
+		"binary": {
+			"-n": "do not output the trailing newline",
+			"-e": "enable interpretation of backslash escapes"
+		}
+	}
+}

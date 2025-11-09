@@ -24,6 +24,14 @@ Supports saving to/loading from a history of commands calls. It is also possible
 
 It may not be the most beautiful, but it does the job :)
 
+### Manual commands and templates
+If you want to create custom arguments/interfaces (e.g. only using a subset of arguments from large projects like curl or other none-argparse software), you can define them using a .json file in the `commands` directory like `commands/yourscript.json`. For details look at the examples provided.
+To create a GUI from them, use `guify -r yourscript`. 
+
+This includes the feature to create custom command templates, look at `commands/curl_api.json`. This feature is still under development and only supports mandatory (positional) arguments.
+
+An alternative approach would be to implement your own python script that calls another software like you want to while exposing only necessary arguments via argparse.
+
 ### Future improvements
 - Chaining commands, useful for activating virtual environments.
 - Piping commands, not that important for my usecases at the moment.

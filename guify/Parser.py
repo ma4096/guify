@@ -1,14 +1,31 @@
+import json
+
 class Parser:
     """ Parse the output of a "[COMMAND] --help" to different groupings and options. """
-    def __init__(self, h):
+    def __init__(self, h, from_file=False):
         #print(repr(h))
-        self.h = h.splitlines()
-        #print(self.h)
         
-        current_group = None # dummy
         self.args = {}
         self.usage = ""
         self.description = ""
+        self.template = None # template defines a special way of combining arguments to a command call
+
+        if from_file:
+            print(from_file, h)
+            with open(h, "r") as file:
+                js = json.load(file)
+                self.description = js["description"]
+                self.usage = js["usage"]
+                self.template = js["template"] if js["template"] != "" else self.template
+
+                for n in ["pos", "binary", "options"]:
+                    self.args[n] = [{"name": k, "description": v} for k,v in js["args"][n].items()]
+            return
+        else:
+            self.h = h.splitlines()
+        #print(self.h)
+        
+        current_group = None # dummy
 
         self.indent_0 = None # normal indentation (gets set, mostly 2)
         self.indent_1 = None # index, where the description starts (is the same for all args)
